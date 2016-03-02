@@ -55,19 +55,10 @@ void console_printf(const char *format, ...)
     {
         if(consoleArray[i])
         {
-            //! TODO: find out why TV screen is distorted
-            //OSScreenPutFontEx(0, 0, i, consoleArray[i]);
+            OSScreenPutFontEx(0, 0, i, consoleArray[i]);
             OSScreenPutFontEx(1, 0, i, consoleArray[i]);
         }
     }
-
-    unsigned int screen_buf0_size = OSScreenGetBufferSizeEx(0);
-    unsigned int screen_buf1_size = OSScreenGetBufferSizeEx(1);
-
-    // Flush the cache
-    DCFlushRange((void *)0xF4000000, screen_buf0_size);
-    DCFlushRange((void *)0xF4000000 + screen_buf0_size, screen_buf1_size);
-
 	OSScreenFlipBuffersEx(0);
 	OSScreenFlipBuffersEx(1);
 }
@@ -121,8 +112,7 @@ int Menu_Main(void)
     OSScreenSetBufferEx(0, (void *)0xF4000000);
     OSScreenSetBufferEx(1, (void *)(0xF4000000 + screen_buf0_size));
 
-    //! TODO: find out why TV screen is distorted, for now TV is disabled
-    OSScreenEnableEx(0, 0);
+    OSScreenEnableEx(0, 1);
     OSScreenEnableEx(1, 1);
 
     // Clear screens
