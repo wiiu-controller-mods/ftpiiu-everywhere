@@ -21,9 +21,11 @@
 #include "net.h"
 
 #define PORT                    21
-#define MAX_CONSOLE_LINES       18
+#define MAX_CONSOLE_LINES_TV    27
+#define MAX_CONSOLE_LINES_DRC   18
 
-static char * consoleArray[MAX_CONSOLE_LINES];
+static char * consoleArrayTv[MAX_CONSOLE_LINES_TV];
+static char * consoleArrayDrc[MAX_CONSOLE_LINES_DRC];
 
 void console_printf(const char *format, ...)
 {
@@ -33,16 +35,25 @@ void console_printf(const char *format, ...)
 	va_start(va, format);
 	if((vasprintf(&tmp, format, va) >= 0) && tmp)
 	{
-	    if(consoleArray[0])
-            free(consoleArray[0]);
+	    if(consoleArrayTv[0])
+            free(consoleArrayTv[0]);
+	    if(consoleArrayDrc[0])
+            free(consoleArrayDrc[0]);
 
-        for(int i = 1; i < MAX_CONSOLE_LINES; i++)
-            consoleArray[i-1] = consoleArray[i];
+        for(int i = 1; i < MAX_CONSOLE_LINES_TV; i++)
+            consoleArrayTv[i-1] = consoleArrayTv[i];
+
+        for(int i = 1; i < MAX_CONSOLE_LINES_DRC; i++)
+            consoleArrayDrc[i-1] = consoleArrayDrc[i];
 
         if(strlen(tmp) > 79)
             tmp[79] = 0;
 
-        consoleArray[MAX_CONSOLE_LINES-1] = (tmp);
+        consoleArrayTv[MAX_CONSOLE_LINES_TV-1] = (char*)malloc(strlen(tmp) + 1);
+        if(consoleArrayTv[MAX_CONSOLE_LINES_TV-1])
+            strcpy(consoleArrayTv[MAX_CONSOLE_LINES_TV-1], tmp);
+
+        consoleArrayDrc[MAX_CONSOLE_LINES_DRC-1] = (tmp);
 	}
 	va_end(va);
 
@@ -51,14 +62,18 @@ void console_printf(const char *format, ...)
     OSScreenClearBufferEx(1, 0);
 
 
-	for(int i = 0; i < MAX_CONSOLE_LINES; i++)
+	for(int i = 0; i < MAX_CONSOLE_LINES_TV; i++)
     {
-        if(consoleArray[i])
-        {
-            OSScreenPutFontEx(0, 0, i, consoleArray[i]);
-            OSScreenPutFontEx(1, 0, i, consoleArray[i]);
-        }
+        if(consoleArrayTv[i])
+            OSScreenPutFontEx(0, 0, i, consoleArrayTv[i]);
     }
+
+	for(int i = 0; i < MAX_CONSOLE_LINES_DRC; i++)
+    {
+        if(consoleArrayDrc[i])
+            OSScreenPutFontEx(1, 0, i, consoleArrayDrc[i]);
+    }
+
 	OSScreenFlipBuffersEx(0);
 	OSScreenFlipBuffersEx(1);
 }
@@ -94,21 +109,20 @@ int Menu_Main(void)
     log_printf("Mount SD partition\n");
     mount_sd_fat("sd");
 
-    for(int i = 0; i < MAX_CONSOLE_LINES; i++)
-    {
-        consoleArray[i] = NULL;
-    }
+	for(int i = 0; i < MAX_CONSOLE_LINES_TV; i++)
+        consoleArrayTv[i] = NULL;
+
+	for(int i = 0; i < MAX_CONSOLE_LINES_DRC; i++)
+        consoleArrayDrc[i] = NULL;
 
     VPADInit();
 
     // Prepare screen
     int screen_buf0_size = 0;
-    int screen_buf1_size = 0;
 
     // Init screen and screen buffers
     OSScreenInit();
     screen_buf0_size = OSScreenGetBufferSizeEx(0);
-    screen_buf1_size = OSScreenGetBufferSizeEx(1);
     OSScreenSetBufferEx(0, (void *)0xF4000000);
     OSScreenSetBufferEx(1, (void *)(0xF4000000 + screen_buf0_size));
 
@@ -118,10 +132,6 @@ int Menu_Main(void)
     // Clear screens
     OSScreenClearBufferEx(0, 0);
     OSScreenClearBufferEx(1, 0);
-
-    // Flush the cache
-    DCFlushRange((void *)0xF4000000, screen_buf0_size);
-    DCFlushRange((void *)(0xF4000000 + screen_buf0_size), screen_buf1_size);
 
     // Flip buffers
     OSScreenFlipBuffersEx(0);
@@ -164,6 +174,19 @@ int Menu_Main(void)
 	if(serverSocket >= 0)
         network_close(serverSocket);
 	UnmountVirtualPaths();
+
+    //! free memory
+	for(int i = 0; i < MAX_CONSOLE_LINES_TV; i++)
+    {
+        if(consoleArrayTv[i])
+            free(consoleArrayTv[i]);
+    }
+
+	for(int i = 0; i < MAX_CONSOLE_LINES_DRC; i++)
+    {
+        if(consoleArrayDrc[i])
+            free(consoleArrayDrc[i]);
+    }
 
     //!*******************************************************************
     //!                    Enter main application                        *
