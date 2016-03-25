@@ -824,8 +824,8 @@ static void process_data_events(client_t *client) {
 	} else {
 		result = client->data_callback(client->data_socket, client->data_connection_callback_arg);
 	}
-
-	if (result <= 0 && result != -EAGAIN) {
+    // stupid mess up in nintys code EAGAIN is sometimes -1 (recv, should be -11) and sometimes -11 (send)
+	if (result <= 0 && result != -EAGAIN && result != -11) {
 		cleanup_data_resources(client);
 		if (result < 0) {
 			result = write_reply(client, 520, "Closing data connection, error occurred during transfer.");
