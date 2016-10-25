@@ -48,6 +48,15 @@ extern "C" {
 #define SO_NONBLOCK     0x1016
 #define SO_MYADDR       0x1013
 
+#define ENODATA         1
+#define EISCONN         3
+#define EWOULDBLOCK     6
+#define EALREADY        10
+#define EAGAIN          EWOULDBLOCK
+#define EINVAL          11
+#define ENOMEM          18
+#define EINPROGRESS     22
+
 #define htonl(x) x
 #define htons(x) x
 #define ntohl(x) x
@@ -87,6 +96,11 @@ extern int (*setsockopt)(int s, int level, int optname, void *optval, int optlen
 
 extern char * (*inet_ntoa)(struct in_addr in);
 extern int (*inet_aton)(const char *cp, struct in_addr *inp);
+
+extern int *(*get_h_errno)(void);
+extern const char *(*gai_strerror)(int errno); // huh, gai o.O
+
+#define geterrno()  (*(get_h_errno()))
 
 #ifdef __cplusplus
 }

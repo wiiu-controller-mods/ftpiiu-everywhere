@@ -23,7 +23,6 @@ misrepresented as being the original software.
 3.This notice may not be removed or altered from any source distribution.
 
 */
-#include <errno.h>
 #include <malloc.h>
 #include <stdlib.h>
 #include <string.h>
@@ -32,11 +31,9 @@ misrepresented as being the original software.
 #include "dynamic_libs/os_functions.h"
 #include "dynamic_libs/socket_functions.h"
 
-#undef EAGAIN
-#define EAGAIN  1
-
 //! TODO: fix those function
 #define gettime()               OSGetTick()
+#define errno                   geterrno()
 
 #include "ftp.h"
 #include "virtualpath.h"
@@ -391,7 +388,7 @@ static s32 prepare_data_connection(client_t *client, void *callback, void *arg, 
 			client->data_callback = callback;
 			client->data_connection_callback_arg = arg;
 			client->data_connection_cleanup = cleanup;
-			client->data_connection_timer = gettime() + SECS_TO_TICKS(30);
+			client->data_connection_timer = gettime() + SECS_TO_TICKS(10);
 		}
 	}
 	return result;
@@ -824,8 +821,8 @@ static void process_data_events(client_t *client) {
 	} else {
 		result = client->data_callback(client->data_socket, client->data_connection_callback_arg);
 	}
-    // stupid mess up in nintys code EAGAIN is sometimes -1 (recv, should be -11) and sometimes -11 (send)
-	if (result <= 0 && result != -EAGAIN && result != -11) {
+
+	if (result <= 0 && result != -EAGAIN) {
 		cleanup_data_resources(client);
 		if (result < 0) {
 			result = write_reply(client, 520, "Closing data connection, error occurred during transfer.");

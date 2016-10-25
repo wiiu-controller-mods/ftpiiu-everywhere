@@ -21,7 +21,6 @@ misrepresented as being the original software.
 3.This notice may not be removed or altered from any source distribution.
 
 */
-#include <errno.h>
 #include <gctypes.h>
 #include <stdio.h>
 #include <string.h>
@@ -69,32 +68,62 @@ void initialise_network() {
 
 s32 network_socket(u32 domain,u32 type,u32 protocol)
 {
-    return socket(domain, type, protocol);
+    int sock = socket(domain, type, protocol);
+    if(sock < 0)
+    {
+        return -geterrno();
+    }
+    return sock;
 }
 
 s32 network_bind(s32 s,struct sockaddr *name,s32 namelen)
 {
-    return bind(s, name, namelen);
+    int res = bind(s, name, namelen);
+    if(res < 0)
+    {
+        return -geterrno();
+    }
+    return res;
 }
 
 s32 network_listen(s32 s,u32 backlog)
 {
-    return listen(s, backlog);
+    int res = listen(s, backlog);
+    if(res < 0)
+    {
+        return -geterrno();
+    }
+    return res;
 }
 
 s32 network_accept(s32 s,struct sockaddr *addr,s32 *addrlen)
 {
-    return accept(s, addr, addrlen);
+    int res = accept(s, addr, addrlen);
+    if(res < 0)
+    {
+        return -geterrno();
+    }
+    return res;
 }
 
 s32 network_connect(s32 s,struct sockaddr *addr, s32 addrlen)
 {
-    return connect(s, addr, addrlen);
+    int res = connect(s, addr, addrlen);
+    if(res < 0)
+    {
+        return -geterrno();
+    }
+    return res;
 }
 
 s32 network_read(s32 s,void *mem,s32 len)
 {
-    return recv(s, mem, len, 0);
+    int res = recv(s, mem, len, 0);
+    if(res < 0)
+    {
+        return -geterrno();
+    }
+    return res;
 }
 
 u32 network_gethostip()
@@ -111,7 +140,7 @@ s32 network_write(s32 s, const void *mem,s32 len)
         int ret = send(s, mem, len, 0);
         if(ret < 0)
         {
-            transfered = ret;
+            transfered = -geterrno();
             break;
         }
 
@@ -132,7 +161,6 @@ s32 network_close(s32 s)
 
 s32 set_blocking(s32 s, bool blocking) {
 	s32 block = !blocking;
-
 	setsockopt(s, SOL_SOCKET, SO_NONBLOCK, &block, sizeof(block));
 	return 0;
 }

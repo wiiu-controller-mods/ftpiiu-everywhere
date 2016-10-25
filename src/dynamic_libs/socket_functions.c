@@ -39,6 +39,8 @@ EXPORT_DECL(int, sendto, int s, const void *buffer, int size, int flags, const s
 EXPORT_DECL(int, setsockopt, int s, int level, int optname, void *optval, int optlen);
 EXPORT_DECL(char *, inet_ntoa, struct in_addr in);
 EXPORT_DECL(int, inet_aton, const char *cp, struct in_addr *inp);
+EXPORT_DECL(int*, get_h_errno, void);
+EXPORT_DECL(const char*, gai_strerror, int);
 
 void InitSocketFunctionPointers(void)
 {
@@ -70,6 +72,8 @@ void InitSocketFunctionPointers(void)
     OS_FIND_EXPORT(nsysnet_handle, setsockopt);
     OS_FIND_EXPORT(nsysnet_handle, inet_ntoa);
     OS_FIND_EXPORT(nsysnet_handle, inet_aton);
+    OS_FIND_EXPORT(nsysnet_handle, get_h_errno);
+    OS_FIND_EXPORT(nsysnet_handle, gai_strerror);
 
     unsigned int nn_startupid;
     ACInitialize();
