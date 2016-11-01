@@ -71,7 +71,8 @@ s32 network_socket(u32 domain,u32 type,u32 protocol)
     int sock = socket(domain, type, protocol);
     if(sock < 0)
     {
-        return -geterrno();
+        int err = -geterrno();
+        return (err < 0) ? err : sock;
     }
     return sock;
 }
@@ -81,7 +82,8 @@ s32 network_bind(s32 s,struct sockaddr *name,s32 namelen)
     int res = bind(s, name, namelen);
     if(res < 0)
     {
-        return -geterrno();
+        int err = -geterrno();
+        return (err < 0) ? err : res;
     }
     return res;
 }
@@ -91,7 +93,8 @@ s32 network_listen(s32 s,u32 backlog)
     int res = listen(s, backlog);
     if(res < 0)
     {
-        return -geterrno();
+        int err = -geterrno();
+        return (err < 0) ? err : res;
     }
     return res;
 }
@@ -101,7 +104,8 @@ s32 network_accept(s32 s,struct sockaddr *addr,s32 *addrlen)
     int res = accept(s, addr, addrlen);
     if(res < 0)
     {
-        return -geterrno();
+        int err = -geterrno();
+        return (err < 0) ? err : res;
     }
     return res;
 }
@@ -111,7 +115,8 @@ s32 network_connect(s32 s,struct sockaddr *addr, s32 addrlen)
     int res = connect(s, addr, addrlen);
     if(res < 0)
     {
-        return -geterrno();
+        int err = -geterrno();
+        return (err < 0) ? err : res;
     }
     return res;
 }
@@ -121,7 +126,8 @@ s32 network_read(s32 s,void *mem,s32 len)
     int res = recv(s, mem, len, 0);
     if(res < 0)
     {
-        return -geterrno();
+        int err = -geterrno();
+        return (err < 0) ? err : res;
     }
     return res;
 }
@@ -140,7 +146,8 @@ s32 network_write(s32 s, const void *mem,s32 len)
         int ret = send(s, mem, len, 0);
         if(ret < 0)
         {
-            transfered = -geterrno();
+            int err = -geterrno();
+            transfered = (err < 0) ? err : ret;
             break;
         }
 

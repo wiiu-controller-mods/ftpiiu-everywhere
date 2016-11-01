@@ -137,7 +137,7 @@ int Menu_Main(void)
     OSScreenFlipBuffersEx(0);
     OSScreenFlipBuffersEx(1);
 
-    console_printf("FTPiiU v0.3 is listening on %u.%u.%u.%u:%i", (network_gethostip() >> 24) & 0xFF, (network_gethostip() >> 16) & 0xFF, (network_gethostip() >> 8) & 0xFF, (network_gethostip() >> 0) & 0xFF, PORT);
+    console_printf("FTPiiU v0.4 is listening on %u.%u.%u.%u:%i", (network_gethostip() >> 24) & 0xFF, (network_gethostip() >> 16) & 0xFF, (network_gethostip() >> 8) & 0xFF, (network_gethostip() >> 0) & 0xFF, PORT);
 
 	MountVirtualDevices();
 

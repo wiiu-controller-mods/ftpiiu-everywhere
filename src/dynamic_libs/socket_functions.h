@@ -97,10 +97,9 @@ extern int (*setsockopt)(int s, int level, int optname, void *optval, int optlen
 extern char * (*inet_ntoa)(struct in_addr in);
 extern int (*inet_aton)(const char *cp, struct in_addr *inp);
 
-extern int *(*get_h_errno)(void);
-extern const char *(*gai_strerror)(int errno); // huh, gai o.O
+extern int (*socketlasterr)(void);
 
-#define geterrno()  (*(get_h_errno()))
+#define geterrno()  (socketlasterr())
 
 #ifdef __cplusplus
 }
