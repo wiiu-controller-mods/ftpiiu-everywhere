@@ -121,6 +121,7 @@ int Menu_Main(void)
     {
         log_printf("IOSUHAX_open failed\n");
         mount_sd_fat("sd");
+        VirtualMountDevice("sd:/");
     }
     else
     {
@@ -132,16 +133,27 @@ int Menu_Main(void)
         {
             log_printf("IOSUHAX_FSA_Open failed\n");
         }
-    }
 
-    mount_fs("slccmpt01", fsaFd, "/dev/slccmpt01", "/vol/storage_slccmpt01");
-    mount_fs("storage_odd_tickets", fsaFd, "/dev/odd01", "/vol/storage_odd_tickets");
-    mount_fs("storage_odd_updates", fsaFd, "/dev/odd02", "/vol/storage_odd_updates");
-    mount_fs("storage_odd_content", fsaFd, "/dev/odd03", "/vol/storage_odd_content");
-    mount_fs("storage_odd_content2", fsaFd, "/dev/odd04", "/vol/storage_odd_content2");
-    mount_fs("storage_slc", fsaFd, NULL, "/vol/system");
-    mount_fs("storage_mlc", fsaFd, NULL, "/vol/storage_mlc01");
-    mount_fs("storage_usb", fsaFd, NULL, "/vol/storage_usb01");
+        mount_fs("slccmpt01", fsaFd, "/dev/slccmpt01", "/vol/storage_slccmpt01");
+        mount_fs("storage_odd_tickets", fsaFd, "/dev/odd01", "/vol/storage_odd_tickets");
+        mount_fs("storage_odd_updates", fsaFd, "/dev/odd02", "/vol/storage_odd_updates");
+        mount_fs("storage_odd_content", fsaFd, "/dev/odd03", "/vol/storage_odd_content");
+        mount_fs("storage_odd_content2", fsaFd, "/dev/odd04", "/vol/storage_odd_content2");
+        mount_fs("storage_slc", fsaFd, NULL, "/vol/system");
+        mount_fs("storage_mlc", fsaFd, NULL, "/vol/storage_mlc01");
+        mount_fs("storage_usb", fsaFd, NULL, "/vol/storage_usb01");
+
+        VirtualMountDevice("sd:/");
+        VirtualMountDevice("slccmpt01:/");
+        VirtualMountDevice("storage_odd_tickets:/");
+        VirtualMountDevice("storage_odd_updates:/");
+        VirtualMountDevice("storage_odd_content:/");
+        VirtualMountDevice("storage_odd_content2:/");
+        VirtualMountDevice("storage_slc:/");
+        VirtualMountDevice("storage_mlc:/");
+        VirtualMountDevice("storage_usb:/");
+        VirtualMountDevice("usb:/");
+    }
 
 	for(int i = 0; i < MAX_CONSOLE_LINES_TV; i++)
         consoleArrayTv[i] = NULL;
@@ -172,8 +184,6 @@ int Menu_Main(void)
     OSScreenFlipBuffersEx(1);
 
     console_printf("FTPiiU v0.4 is listening on %u.%u.%u.%u:%i", (network_gethostip() >> 24) & 0xFF, (network_gethostip() >> 16) & 0xFF, (network_gethostip() >> 8) & 0xFF, (network_gethostip() >> 0) & 0xFF, PORT);
-
-	MountVirtualDevices();
 
     int serverSocket = create_server(PORT);
 
@@ -207,7 +217,6 @@ int Menu_Main(void)
 	cleanup_ftp();
 	if(serverSocket >= 0)
         network_close(serverSocket);
-	UnmountVirtualPaths();
 
     //! free memory
 	for(int i = 0; i < MAX_CONSOLE_LINES_TV; i++)
@@ -250,6 +259,8 @@ int Menu_Main(void)
     {
         unmount_sd_fat("sd:/");
     }
+
+    UnmountVirtualPaths();
 
     log_printf("Release memory\n");
     //memoryRelease();
