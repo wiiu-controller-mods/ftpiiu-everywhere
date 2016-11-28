@@ -3,8 +3,10 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <gctypes.h>
+#include <fat.h>
 #include <iosuhax.h>
 #include <iosuhax_devoptab.h>
+#include <iosuhax_disc_interface.h>
 #include "dynamic_libs/os_functions.h"
 #include "dynamic_libs/fs_functions.h"
 #include "dynamic_libs/gx2_functions.h"
@@ -110,18 +112,26 @@ int Menu_Main(void)
     //!                        Initialize FS                             *
     //!*******************************************************************
     log_printf("Mount SD partition\n");
-    mount_sd_fat("sd");
 
-    int res = IOSUHAX_Open();
+    int fsaFd = -1;
+    int iosuhaxMount = 0;
+
+    int res = IOSUHAX_Open(NULL);
     if(res < 0)
     {
         log_printf("IOSUHAX_open failed\n");
+        mount_sd_fat("sd");
     }
-
-    int fsaFd = IOSUHAX_FSA_Open();
-    if(fsaFd < 0)
+    else
     {
-        log_printf("IOSUHAX_FSA_Open failed\n");
+        iosuhaxMount = 1;
+        fatInitDefault();
+
+        fsaFd = IOSUHAX_FSA_Open();
+        if(fsaFd < 0)
+        {
+            log_printf("IOSUHAX_FSA_Open failed\n");
+        }
     }
 
     mount_fs("slccmpt01", fsaFd, "/dev/slccmpt01", "/vol/storage_slccmpt01");
@@ -217,18 +227,29 @@ int Menu_Main(void)
     //!*******************************************************************
 
     log_printf("Unmount SD\n");
-    unmount_sd_fat("sd");
 
-    unmount_fs("slccmpt01");
-    unmount_fs("storage_odd_tickets");
-    unmount_fs("storage_odd_updates");
-    unmount_fs("storage_odd_content");
-    unmount_fs("storage_odd_content2");
-    unmount_fs("storage_slc");
-    unmount_fs("storage_mlc");
-    unmount_fs("storage_usb");
-    IOSUHAX_FSA_Close(fsaFd);
-    IOSUHAX_Close();
+    if(iosuhaxMount)
+    {
+        fatUnmount("sd");
+        fatUnmount("usb");
+        IOSUHAX_sdio_disc_interface.shutdown();
+        IOSUHAX_usb_disc_interface.shutdown();
+
+        unmount_fs("slccmpt01");
+        unmount_fs("storage_odd_tickets");
+        unmount_fs("storage_odd_updates");
+        unmount_fs("storage_odd_content");
+        unmount_fs("storage_odd_content2");
+        unmount_fs("storage_slc");
+        unmount_fs("storage_mlc");
+        unmount_fs("storage_usb");
+        IOSUHAX_FSA_Close(fsaFd);
+        IOSUHAX_Close();
+    }
+    else
+    {
+        unmount_sd_fat("sd:/");
+    }
 
     log_printf("Release memory\n");
     //memoryRelease();

@@ -102,6 +102,7 @@ void MountVirtualDevices()
     VirtualMountDevice("storage_slc:/");
     VirtualMountDevice("storage_mlc:/");
     VirtualMountDevice("storage_usb:/");
+    VirtualMountDevice("usb:/");
 }
 
 void UnmountVirtualPaths()
