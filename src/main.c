@@ -83,6 +83,43 @@ void console_printf(const char *format, ...)
 	OSScreenFlipBuffersEx(1);
 }
 
+//just to be able to call async
+void someFunc(void *arg)
+{
+    (void)arg;
+}
+
+static int mcp_hook_fd = -1;
+int MCPHookOpen()
+{
+    //take over mcp thread
+    mcp_hook_fd = MCP_Open();
+    if(mcp_hook_fd < 0)
+        return -1;
+    IOS_IoctlAsync(mcp_hook_fd, 0x62, (void*)0, 0, (void*)0, 0, someFunc, (void*)0);
+    //let wupserver start up
+    sleep(1);
+    if(IOSUHAX_Open("/dev/mcp") < 0)
+    {
+        MCP_Close(mcp_hook_fd);
+        mcp_hook_fd = -1;
+        return -1;
+    }
+    return 0;
+}
+
+void MCPHookClose()
+{
+    if(mcp_hook_fd < 0)
+        return;
+    //close down wupserver, return control to mcp
+    IOSUHAX_Close();
+    //wait for mcp to return
+    sleep(1);
+    MCP_Close(mcp_hook_fd);
+    mcp_hook_fd = -1;
+}
+
 /* Entry point */
 int Menu_Main(void)
 {
@@ -117,6 +154,8 @@ int Menu_Main(void)
     int iosuhaxMount = 0;
 
     int res = IOSUHAX_Open(NULL);
+    if(res < 0)
+        res = MCPHookOpen();
     if(res < 0)
     {
         log_printf("IOSUHAX_open failed\n");
@@ -253,7 +292,10 @@ int Menu_Main(void)
         unmount_fs("storage_mlc");
         unmount_fs("storage_usb");
         IOSUHAX_FSA_Close(fsaFd);
-        IOSUHAX_Close();
+        if(mcp_hook_fd >= 0)
+            MCPHookClose();
+        else
+            IOSUHAX_Close();
     }
     else
     {

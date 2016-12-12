@@ -96,6 +96,12 @@ extern void (* OSUnlockMutex)(void* mutex);
 extern int (* OSTryLockMutex)(void* mutex);
 
 //!----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//! MCP functions
+//!----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+extern int (* MCP_Open)(void);
+extern int (* MCP_Close)(int handle);
+
+//!----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 //! System functions
 //!----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 extern u64 (* OSGetTitleID)(void);
@@ -106,6 +112,7 @@ extern void (* ICInvalidateRange)(const void *addr, u32 length);
 extern void* (* OSEffectiveToPhysical)(const void*);
 extern int (* __os_snprintf)(char* s, int n, const char * format, ...);
 extern int (*IOS_Ioctl)(int fd, unsigned int request, void *input_buffer,unsigned int input_buffer_len, void *output_buffer, unsigned int output_buffer_len);
+extern int (*IOS_IoctlAsync)(int fd, unsigned int request, void *input_buffer,unsigned int input_buffer_len, void *output_buffer, unsigned int output_buffer_len, void *cb, void *cbarg);
 extern int (*IOS_Open)(char *path, unsigned int mode);
 extern int (*IOS_Close)(int fd);
 

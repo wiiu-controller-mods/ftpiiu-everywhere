@@ -75,6 +75,7 @@ EXPORT_DECL(int, OSScreenPutFontEx, unsigned int bufferNum, unsigned int posX, u
 EXPORT_DECL(int, OSScreenEnableEx, unsigned int bufferNum, int enable);
 
 EXPORT_DECL(int, IOS_Ioctl,int fd, unsigned int request, void *input_buffer,unsigned int input_buffer_len, void *output_buffer, unsigned int output_buffer_len);
+EXPORT_DECL(int, IOS_IoctlAsync,int fd, unsigned int request, void *input_buffer,unsigned int input_buffer_len, void *output_buffer, unsigned int output_buffer_len, void *cb, void *cbarg);
 EXPORT_DECL(int, IOS_Open,char *path, unsigned int mode);
 EXPORT_DECL(int, IOS_Close,int fd);
 
@@ -93,6 +94,12 @@ EXPORT_DECL(void *, MEMAllocFromExpHeapEx, int heap, unsigned int size, int alig
 EXPORT_DECL(int , MEMCreateExpHeapEx, void* address, unsigned int size, unsigned short flags);
 EXPORT_DECL(void *, MEMDestroyExpHeap, int heap);
 EXPORT_DECL(void, MEMFreeToExpHeap, int heap, void* ptr);
+
+//!----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//! MCP functions
+//!----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+EXPORT_DECL(int, MCP_Open, void);
+EXPORT_DECL(int, MCP_Close, int handle);
 
 //!----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 //! Loader functions (not real rpl)
@@ -150,6 +157,11 @@ void InitOSFunctionPointers(void)
     OS_FIND_EXPORT(coreinit_handle, OSLockMutex);
     OS_FIND_EXPORT(coreinit_handle, OSUnlockMutex);
     OS_FIND_EXPORT(coreinit_handle, OSTryLockMutex);
+    //!----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //! MCP functions
+    //!----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    OS_FIND_EXPORT(coreinit_handle, MCP_Open);
+    OS_FIND_EXPORT(coreinit_handle, MCP_Close);
 
     //!----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     //! Memory functions
@@ -171,6 +183,7 @@ void InitOSFunctionPointers(void)
     //! Other function addresses
     //!----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     OS_FIND_EXPORT(coreinit_handle, IOS_Ioctl);
+	OS_FIND_EXPORT(coreinit_handle, IOS_IoctlAsync);
     OS_FIND_EXPORT(coreinit_handle, IOS_Open);
     OS_FIND_EXPORT(coreinit_handle, IOS_Close);
 }
