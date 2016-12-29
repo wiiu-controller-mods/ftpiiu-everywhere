@@ -154,6 +154,16 @@ char *to_real_path(char *virtual_cwd, char *virtual_path) {
 	return path;
 }
 
+static int checkdir(char *path) {
+	DIR *dir = opendir(path);
+	if(dir)
+	{
+		closedir(dir);
+		return 0;
+	}
+	return -1;
+}
+
 typedef void * (*path_func)(char *path, ...);
 
 static void *with_virtual_path(void *virtual_cwd, void *void_f, char *virtual_path, s32 failed, ...) {
@@ -205,13 +215,23 @@ int vrt_stat(char *cwd, char *path, struct stat *st) {
 	return (int)with_virtual_path(cwd, stat, path, -1, st, NULL);
 }
 
+static int vrt_checkdir(char *cwd, char *path) {
+	char *real_path = to_real_path(cwd, path);
+	if (!real_path)
+	{
+		return -1;
+	}
+	else if (!*real_path || (strcmp(path, ".") == 0) || (strlen(cwd) == 1) || ((strlen(cwd) > 1) && (strcmp(path, "..") == 0)))
+	{
+		return 0;
+	}
+	free(real_path);
+	return (int)with_virtual_path(cwd, checkdir, path, -1, NULL);
+}
+
 int vrt_chdir(char *cwd, char *path) {
 
-	struct stat st;
-	if (vrt_stat(cwd, path, &st)) {
-		return -1;
-	} else if (!(st.st_mode & S_IFDIR)) {
-		errno = ENOTDIR;
+	if (vrt_checkdir(cwd, path)) {
 		return -1;
 	}
 	char *abspath = virtual_abspath(cwd, path);
