@@ -151,6 +151,9 @@ int Menu_Main(void)
     int vpadReadCounter = 0;
     KPADData kpad;
 
+    // set everything to 0 because some vars will stay uninitialized on first read
+    memset(&kpad, 0, sizeof(kpad));
+
     bool exitApplication = false;
     while(serverSocket >= 0 && !network_down)
     {
@@ -179,7 +182,7 @@ int Menu_Main(void)
 
                 KPADRead(i, &kpad, 1);
 
-                if(kpad.pro.btns_h & WPAD_PRO_BUTTON_HOME)
+                if((kpad.pro.btns_h | kpad.pro.btns_d) & WPAD_PRO_BUTTON_HOME)
                     exitApplication = true;
             }
             
