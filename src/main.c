@@ -135,6 +135,7 @@ int Menu_Main(void)
 
     InitFSFunctionPointers();
     InitVPadFunctionPointers();
+    InitPadScoreFunctionPointers();
 
     log_print("Function exports loaded\n");
 
@@ -201,6 +202,7 @@ int Menu_Main(void)
         consoleArrayDrc[i] = NULL;
 
     VPADInit();
+    KPADInit();
 
     // Prepare screen
     int screen_buf0_size = 0;
@@ -230,7 +232,9 @@ int Menu_Main(void)
     int vpadError = -1;
     VPADData vpad;
     int vpadReadCounter = 0;
+    KPADData kpad;
 
+    bool exitApplication = false;
     while(serverSocket >= 0 && !network_down)
     {
         network_down = process_ftp_events(serverSocket);
@@ -247,6 +251,22 @@ int Menu_Main(void)
             VPADRead(0, &vpad, 1, &vpadError);
 
             if(vpadError == 0 && ((vpad.btns_d | vpad.btns_h) & VPAD_BUTTON_HOME))
+                break;
+
+            for (int i = 0; i < 5; i++)
+            {
+                u32 controllerType;
+                // check if the controller is connected
+                if (WPADProbe(i, &controllerType) != 0)
+                    continue;
+
+                KPADRead(i, &kpad, 1);
+
+                if((kpad.pro.btns_d | kpad.pro.btns_h) & WPAD_PRO_BUTTON_HOME)
+                    exitApplication = true;
+            }
+            
+            if (exitApplication)
                 break;
         }
 
