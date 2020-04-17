@@ -170,7 +170,7 @@ int Menu_Main(void)
             if(vpadError == 0 && ((vpad.btns_d | vpad.btns_h) & VPAD_BUTTON_HOME))
                 break;
 
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 4; i++)
             {
                 u32 controllerType;
                 // check if the controller is connected
