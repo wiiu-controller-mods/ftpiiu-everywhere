@@ -27,6 +27,7 @@ misrepresented as being the original software.
 #include <stdlib.h>
 #include <string.h>
 #include <sys/dir.h>
+#include <sys/param.h>
 #include <unistd.h>
 #include "dynamic_libs/os_functions.h"
 #include "dynamic_libs/socket_functions.h"

@@ -26,7 +26,7 @@ misrepresented as being the original software.
 #include <malloc.h>
 #include <stdarg.h>
 #include <string.h>
-#include <sys/dirent.h>
+#include <sys/param.h>
 #include <unistd.h>
 #include <gctypes.h>
 
