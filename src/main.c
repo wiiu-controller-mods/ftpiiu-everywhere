@@ -179,7 +179,7 @@ int Menu_Main(void)
 
                 KPADRead(i, &kpad, 1);
 
-                if((kpad.pro.btns_d | kpad.pro.btns_h) & WPAD_PRO_BUTTON_HOME)
+                if(kpad.pro.btns_h & WPAD_PRO_BUTTON_HOME)
                     exitApplication = true;
             }
             
