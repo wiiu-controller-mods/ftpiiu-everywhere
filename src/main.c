@@ -266,8 +266,21 @@ int Menu_Main(void)
 
                 KPADRead(i, &kpad, 1);
 
-                if((kpad.pro.btns_h | kpad.pro.btns_d) & WPAD_PRO_BUTTON_HOME)
-                    exitApplication = true;
+                switch (controllerType)
+                {
+                    case WPAD_EXT_CORE:
+                        if((kpad.btns_h | kpad.btns_d) & WPAD_BUTTON_HOME)
+                            exitApplication = true;
+                        break;
+                    case WPAD_EXT_CLASSIC:
+                        if((kpad.classic.btns_h | kpad.classic.btns_d) & WPAD_CLASSIC_BUTTON_HOME)
+                            exitApplication = true;
+                        break;
+                    case WPAD_EXT_PRO_CONTROLLER:
+                        if((kpad.pro.btns_h | kpad.pro.btns_d) & WPAD_PRO_BUTTON_HOME)
+                            exitApplication = true;
+                        break;
+                }
             }
             
             if (exitApplication)

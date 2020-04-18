@@ -427,7 +427,8 @@ static s32 send_list(s32 data_socket, DIR_P *iter) {
 		snprintf(filename, sizeof(filename), "%s/%s", iter->path, dirent->d_name);
 		if(stat(filename, &st) == 0)
 		{
-			mtime = st.st_mtime;
+			// ignore time from stat because it is total garbage
+			mtime = time(0);
 			size = st.st_size;
 		}
 		else
